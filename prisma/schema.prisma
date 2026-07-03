@@ -1,0 +1,111 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ==================== ENUMS ====================
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum TaskStatus {
+  PENDING
+  IN_PROGRESS
+  DONE
+}
+
+// ==================== MODELS ====================
+
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  username      String
+  password_hash String
+  avatar_url    String?
+  created_at    DateTime  @default(now())
+
+  // Relations
+  stats         UserStats?
+  tasks         Task[]
+  expLogs       ExpLog[]
+  categories    Category[]
+
+  @@map("users")
+}
+
+model UserStats {
+  id           String    @id @default(uuid())
+  user_id      String    @unique
+  level        Int       @default(1)
+  current_exp  Int       @default(0)
+  exp_to_next  Int       @default(100)
+  total_exp    Int       @default(0)
+  streak_count Int       @default(0)
+  last_active  DateTime?
+
+  // Relations
+  user         User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@map("user_stats")
+}
+
+model Task {
+  id              String     @id @default(uuid())
+  user_id         String
+  title           String
+  description     String?
+  category_id     String?
+  due_date        DateTime
+  is_recurring    Boolean    @default(false)
+  recurrence_rule String?
+  priority        Priority   @default(MEDIUM)
+  status          TaskStatus @default(PENDING)
+  exp_reward      Int        @default(10)
+  completed_at    DateTime?
+  created_at      DateTime   @default(now())
+  updated_at      DateTime   @updatedAt
+
+  // Relations
+  user            User       @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  category        Category?  @relation(fields: [category_id], references: [id], onDelete: SetNull)
+  expLogs         ExpLog[]
+
+  @@map("tasks")
+}
+
+model ExpLog {
+  id          String   @id @default(uuid())
+  user_id     String
+  task_id     String?
+  exp_gained  Int
+  reason      String   // "task_completed", "streak_bonus", dll
+  created_at  DateTime @default(now())
+
+  // Relations
+  user        User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  task        Task?    @relation(fields: [task_id], references: [id], onDelete: SetNull)
+
+  @@map("exp_logs")
+}
+
+model Category {
+  id      String @id @default(uuid())
+  user_id String
+  name    String
+  color   String // hex code untuk UI, e.g. "#FF5733"
+
+  // Relations
+  user    User   @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  tasks   Task[]
+
+  @@map("categories")
+}

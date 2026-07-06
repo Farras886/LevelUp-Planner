@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import { signOut } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
+import ExpBar from "@/components/dashboard/ExpBar";
+import StatsGrid from "@/components/dashboard/StatsGrid";
+import TaskListWrapper from "@/components/dashboard/TaskListWrapper";
 
 export const metadata: Metadata = {
   title: "Dashboard — LevelUp Planner",
@@ -10,90 +13,89 @@ export const metadata: Metadata = {
 
 export default async function DashboardPage() {
   const session = await auth();
+  if (!session?.user?.id) redirect("/login");
 
-  if (!session) {
-    redirect("/login");
-  }
+  // Ambil UserStats dari DB
+  const stats = await prisma.userStats.findUnique({
+    where: { user_id: session.user.id },
+  });
+
+  if (!stats) redirect("/login");
+
+  // Hitung task selesai hari ini
+  const todayStart = new Date();
+  todayStart.setHours(0, 0, 0, 0);
+  const todayEnd = new Date();
+  todayEnd.setHours(23, 59, 59, 999);
+
+  const completedToday = await prisma.task.count({
+    where: {
+      user_id: session.user.id,
+      status: "DONE",
+      completed_at: { gte: todayStart, lte: todayEnd },
+    },
+  });
+
+  // Ambil 3 task hari ini yang belum selesai
+  const todayTasks = await prisma.task.count({
+    where: {
+      user_id: session.user.id,
+      due_date: { gte: todayStart, lte: todayEnd },
+    },
+  });
+
+  const greeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return "Selamat pagi";
+    if (hour < 17) return "Selamat siang";
+    return "Selamat malam";
+  };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] p-8">
-      <div className="mx-auto max-w-4xl">
-        {/* Header */}
-        <div className="mb-8 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600">
-              <span className="text-xl">⚡</span>
-            </div>
-            <span className="text-lg font-bold text-white">LevelUp Planner</span>
-          </div>
+    <div className="min-h-full p-8">
+      <div className="mx-auto max-w-4xl space-y-6">
 
-          <form
-            action={async () => {
-              "use server";
-              await signOut({ redirectTo: "/login" });
-            }}
-          >
-            <button
-              id="logout-btn"
-              type="submit"
-              className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-slate-400 transition-all hover:border-red-500/30 hover:bg-red-500/10 hover:text-red-400"
-            >
-              Keluar
-            </button>
-          </form>
-        </div>
+        {/* Welcome Banner */}
+        <div className="relative overflow-hidden rounded-2xl border border-violet-500/20 bg-gradient-to-br from-violet-900/40 to-indigo-900/30 p-8 backdrop-blur-xl">
+          {/* Background orbs */}
+          <div className="pointer-events-none absolute right-0 top-0 h-72 w-72 rounded-full bg-violet-500/10 blur-[100px]" />
+          <div className="pointer-events-none absolute -bottom-10 right-20 h-40 w-40 rounded-full bg-indigo-500/15 blur-[60px]" />
 
-        {/* Welcome card */}
-        <div className="relative overflow-hidden rounded-2xl border border-violet-500/20 bg-gradient-to-br from-violet-900/30 to-indigo-900/30 p-8 backdrop-blur-xl">
-          <div className="pointer-events-none absolute right-0 top-0 h-64 w-64 rounded-full bg-violet-500/10 blur-[80px]" />
           <div className="relative">
-            <div className="mb-2 text-sm font-medium text-violet-400">
-              Level 1 Adventurer
-            </div>
-            <h1 className="text-3xl font-bold text-white">
-              Halo, {session.user?.name}! 👋
+            <p className="text-sm font-medium text-violet-400">{greeting()},</p>
+            <h1 className="mt-1 text-3xl font-bold text-white">
+              {session.user?.name}! 👋
             </h1>
-            <p className="mt-2 text-slate-400">
-              Akun berhasil dibuat. Dashboard task management akan hadir di Tahap 2!
+            <p className="mt-1.5 text-slate-400">
+              {todayTasks > 0
+                ? `Kamu punya ${todayTasks} task hari ini. Selesaikan dan naik level!`
+                : "Belum ada task hari ini. Tambahkan task pertamamu!"}
             </p>
 
-            {/* EXP Bar placeholder */}
+            {/* EXP Bar */}
             <div className="mt-6">
-              <div className="mb-1.5 flex justify-between text-xs text-slate-400">
-                <span>Level 1</span>
-                <span>0 / 100 EXP</span>
-              </div>
-              <div className="h-2.5 w-full overflow-hidden rounded-full bg-white/10">
-                <div
-                  className="h-full rounded-full bg-gradient-to-r from-violet-500 to-indigo-500 transition-all duration-500"
-                  style={{ width: "0%" }}
-                />
-              </div>
+              <ExpBar
+                level={stats.level}
+                currentExp={stats.current_exp}
+                expToNext={stats.exp_to_next}
+                totalExp={stats.total_exp}
+              />
             </div>
           </div>
         </div>
 
-        {/* Stats placeholder */}
-        <div className="mt-6 grid grid-cols-3 gap-4">
-          {[
-            { label: "Task Selesai", value: "0", icon: "✅" },
-            { label: "Streak Hari", value: "0", icon: "🔥" },
-            { label: "Total EXP", value: "0", icon: "⭐" },
-          ].map((stat) => (
-            <div
-              key={stat.label}
-              className="rounded-xl border border-white/10 bg-white/5 p-5 text-center backdrop-blur-xl"
-            >
-              <div className="text-2xl">{stat.icon}</div>
-              <div className="mt-2 text-2xl font-bold text-white">{stat.value}</div>
-              <div className="text-xs text-slate-400">{stat.label}</div>
-            </div>
-          ))}
+        {/* Stats Grid */}
+        <StatsGrid
+          completedToday={completedToday}
+          streakCount={stats.streak_count}
+          totalExp={stats.total_exp}
+        />
+
+        {/* Task List — Client Component */}
+        <div className="rounded-2xl border border-white/5 bg-white/2 p-6 backdrop-blur-xl">
+          <TaskListWrapper />
         </div>
 
-        <p className="mt-8 text-center text-xs text-slate-600">
-          Tahap 2 (Task Management) & Tahap 3 (Gamification Engine) coming soon
-        </p>
       </div>
     </div>
   );

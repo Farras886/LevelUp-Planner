@@ -23,6 +23,9 @@ export const loginSchema = z.object({
 
 // ==================== TASK SCHEMAS ====================
 
+export const RECURRENCE_RULES = ["DAILY", "WEEKLY", "MONTHLY", "YEARLY"] as const;
+export type RecurrenceRule = typeof RECURRENCE_RULES[number];
+
 export const createTaskSchema = z.object({
   title: z
     .string()
@@ -32,7 +35,12 @@ export const createTaskSchema = z.object({
   due_date: z.string().min(1, "Tanggal jatuh tempo wajib diisi"),
   priority: z.enum(["LOW", "MEDIUM", "HIGH"]).default("MEDIUM"),
   category_id: z.string().optional(),
-});
+  is_recurring: z.boolean().default(false),
+  recurrence_rule: z.enum(["DAILY", "WEEKLY", "MONTHLY", "YEARLY"]).optional(),
+}).refine(
+  (data) => !data.is_recurring || !!data.recurrence_rule,
+  { message: "Pilih jenis pengulangan", path: ["recurrence_rule"] }
+);
 
 export const updateTaskSchema = z.object({
   title: z
@@ -45,6 +53,8 @@ export const updateTaskSchema = z.object({
   priority: z.enum(["LOW", "MEDIUM", "HIGH"]).optional(),
   category_id: z.string().optional(),
   status: z.enum(["PENDING", "IN_PROGRESS", "DONE"]).optional(),
+  is_recurring: z.boolean().optional(),
+  recurrence_rule: z.enum(["DAILY", "WEEKLY", "MONTHLY", "YEARLY"]).optional(),
 });
 
 export const completeTaskSchema = z.object({

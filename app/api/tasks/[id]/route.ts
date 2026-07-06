@@ -3,6 +3,8 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { updateTaskSchema } from "@/lib/validations";
 import { awardExp, updateStreak } from "@/services/gamification.service";
+import { calculateNextDueDate } from "@/services/recurrence.service";
+import type { RecurrenceRule } from "@/lib/validations";
 
 // PATCH /api/tasks/[id] — Update task (edit atau complete)
 export async function PATCH(
@@ -62,7 +64,7 @@ export async function PATCH(
       include: { category: true },
     });
 
-    // Jika task baru saja diselesaikan → award EXP
+    // Jika task baru saja diselesaikan → award EXP + handle recurring
     if (isCompletingTask) {
       const [expResult] = await Promise.all([
         awardExp(
@@ -74,12 +76,38 @@ export async function PATCH(
         updateStreak(session.user.id),
       ]);
 
+      // Jika recurring → buat task berikutnya secara otomatis
+      let nextTask = null;
+      if (existingTask.is_recurring && existingTask.recurrence_rule) {
+        const nextDueDate = calculateNextDueDate(
+          existingTask.due_date,
+          existingTask.recurrence_rule as RecurrenceRule
+        );
+
+        nextTask = await prisma.task.create({
+          data: {
+            user_id: existingTask.user_id,
+            title: existingTask.title,
+            description: existingTask.description,
+            category_id: existingTask.category_id,
+            due_date: nextDueDate,
+            priority: existingTask.priority,
+            is_recurring: true,
+            recurrence_rule: existingTask.recurrence_rule,
+            exp_reward: existingTask.exp_reward,
+            status: "PENDING",
+          },
+          include: { category: true },
+        });
+      }
+
       return NextResponse.json({
         data: updatedTask,
         expGained: expResult.expGained,
         leveledUp: expResult.leveledUp,
         newLevel: expResult.newLevel,
         stats: expResult.stats,
+        nextTask, // task baru yang dibuat otomatis (null jika bukan recurring)
       });
     }
 

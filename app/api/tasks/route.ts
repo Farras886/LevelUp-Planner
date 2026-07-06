@@ -67,10 +67,12 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { title, description, due_date, priority, category_id } = parsed.data;
+    const { title, description, due_date, priority, category_id, is_recurring, recurrence_rule } = parsed.data;
 
     // Hitung exp_reward berdasarkan prioritas
-    const expReward = getExpReward(priority);
+    // Recurring task dapat +5 EXP bonus sebagai insentif konsistensi
+    const baseExpReward = getExpReward(priority);
+    const expReward = is_recurring ? baseExpReward + 5 : baseExpReward;
 
     const task = await prisma.task.create({
       data: {
@@ -81,6 +83,8 @@ export async function POST(req: NextRequest) {
         priority,
         category_id: category_id ?? null,
         exp_reward: expReward,
+        is_recurring: is_recurring ?? false,
+        recurrence_rule: is_recurring ? (recurrence_rule ?? null) : null,
       },
       include: { category: true },
     });

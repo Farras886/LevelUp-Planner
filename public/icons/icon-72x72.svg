@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="72" height="72" viewBox="0 0 72 72">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0f0a1a;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0a0a0f;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="bolt" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#a78bfa;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#7c3aed;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#4f46e5;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="glow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#8b5cf6;stop-opacity:0.4" />
+      <stop offset="100%" style="stop-color:#6366f1;stop-opacity:0" />
+    </linearGradient>
+    <filter id="glowFilter" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="2.88" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="72" height="72" fill="url(#bg)"/>
+  
+  <!-- Glow circle -->
+  <circle cx="36" cy="36" r="24.624" fill="url(#glow)" opacity="0.6"/>
+  
+  <!-- Lightning bolt (⚡) -->
+  <g transform="translate(36, 36)" filter="url(#glowFilter)">
+    <!-- Outer glow copy -->
+    <path 
+      d="M -5.184 -24.624
+         L -15.552 2.592
+         L -2.592 2.592
+         L -9.072000000000001 24.624
+         L 14.256 -6.48
+         L 2.592 -6.48
+         L 12.96 -24.624
+         Z"
+      fill="#a78bfa" opacity="0.3"
+      transform="scale(1.15)"
+    />
+    <!-- Main bolt -->
+    <path 
+      d="M -5.184 -24.624
+         L -15.552 2.592
+         L -2.592 2.592
+         L -9.072000000000001 24.624
+         L 14.256 -6.48
+         L 2.592 -6.48
+         L 12.96 -24.624
+         Z"
+      fill="url(#bolt)"
+    />
+  </g>
+  
+  <!-- Sparkle dots -->
+  <circle cx="56.736000000000004" cy="16.560000000000002" r="1.2959999999999998" fill="#c4b5fd" opacity="0.8"/>
+  <circle cx="16.560000000000002" cy="54.144000000000005" r="0.864" fill="#a78bfa" opacity="0.6"/>
+  <circle cx="52.2" cy="58.67999999999999" r="0.6479999999999999" fill="#818cf8" opacity="0.5"/>
+</svg>

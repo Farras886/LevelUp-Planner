@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0f0a1a;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0a0a0f;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="bolt" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#a78bfa;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#7c3aed;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#4f46e5;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="glow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#8b5cf6;stop-opacity:0.4" />
+      <stop offset="100%" style="stop-color:#6366f1;stop-opacity:0" />
+    </linearGradient>
+    <filter id="glowFilter" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="5.12" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="128" height="128" fill="url(#bg)"/>
+  
+  <!-- Glow circle -->
+  <circle cx="64" cy="64" r="43.776" fill="url(#glow)" opacity="0.6"/>
+  
+  <!-- Lightning bolt (⚡) -->
+  <g transform="translate(64, 64)" filter="url(#glowFilter)">
+    <!-- Outer glow copy -->
+    <path 
+      d="M -9.216000000000001 -43.776
+         L -27.648 4.6080000000000005
+         L -4.6080000000000005 4.6080000000000005
+         L -16.128000000000004 43.776
+         L 25.344 -11.520000000000001
+         L 4.6080000000000005 -11.520000000000001
+         L 23.040000000000003 -43.776
+         Z"
+      fill="#a78bfa" opacity="0.3"
+      transform="scale(1.15)"
+    />
+    <!-- Main bolt -->
+    <path 
+      d="M -9.216000000000001 -43.776
+         L -27.648 4.6080000000000005
+         L -4.6080000000000005 4.6080000000000005
+         L -16.128000000000004 43.776
+         L 25.344 -11.520000000000001
+         L 4.6080000000000005 -11.520000000000001
+         L 23.040000000000003 -43.776
+         Z"
+      fill="url(#bolt)"
+    />
+  </g>
+  
+  <!-- Sparkle dots -->
+  <circle cx="100.864" cy="29.439999999999998" r="2.304" fill="#c4b5fd" opacity="0.8"/>
+  <circle cx="29.439999999999998" cy="96.256" r="1.536" fill="#a78bfa" opacity="0.6"/>
+  <circle cx="92.8" cy="104.32" r="1.152" fill="#818cf8" opacity="0.5"/>
+</svg>

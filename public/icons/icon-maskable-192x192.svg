@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="192" height="192" viewBox="0 0 192 192">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0f0a1a;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0a0a0f;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="bolt" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#a78bfa;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#7c3aed;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#4f46e5;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="glow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#8b5cf6;stop-opacity:0.4" />
+      <stop offset="100%" style="stop-color:#6366f1;stop-opacity:0" />
+    </linearGradient>
+    <filter id="glowFilter" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="7.68" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="192" height="192" fill="url(#bg)"/>
+  
+  <!-- Glow circle -->
+  <circle cx="96" cy="96" r="58.367999999999995" fill="url(#glow)" opacity="0.6"/>
+  
+  <!-- Lightning bolt (⚡) -->
+  <g transform="translate(96, 96)" filter="url(#glowFilter)">
+    <!-- Outer glow copy -->
+    <path 
+      d="M -12.288 -58.367999999999995
+         L -36.864 6.144
+         L -6.144 6.144
+         L -21.504 58.367999999999995
+         L 33.792 -15.36
+         L 6.144 -15.36
+         L 30.72 -58.367999999999995
+         Z"
+      fill="#a78bfa" opacity="0.3"
+      transform="scale(1.15)"
+    />
+    <!-- Main bolt -->
+    <path 
+      d="M -12.288 -58.367999999999995
+         L -36.864 6.144
+         L -6.144 6.144
+         L -21.504 58.367999999999995
+         L 33.792 -15.36
+         L 6.144 -15.36
+         L 30.72 -58.367999999999995
+         Z"
+      fill="url(#bolt)"
+    />
+  </g>
+  
+  <!-- Sparkle dots -->
+  <circle cx="145.152" cy="49.92" r="3.4559999999999995" fill="#c4b5fd" opacity="0.8"/>
+  <circle cx="49.92" cy="139.008" r="2.3040000000000003" fill="#a78bfa" opacity="0.6"/>
+  <circle cx="134.4" cy="149.76" r="1.7279999999999998" fill="#818cf8" opacity="0.5"/>
+</svg>

@@ -1,5 +1,3 @@
-"use client";
-
 interface StatsGridProps {
   completedToday: number;
   streakCount: number;

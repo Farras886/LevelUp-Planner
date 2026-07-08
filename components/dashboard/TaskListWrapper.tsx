@@ -1,22 +1,21 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useCallback } from "react";
+import { useRouter } from "next/navigation";
 import TaskList from "@/components/tasks/TaskList";
 
 /**
  * Wrapper client component untuk TaskList di halaman Server Component (dashboard).
  * Menangani refresh stats setelah task diselesaikan.
+ * Menggunakan router.refresh() (lebih cepat dari window.location.reload)
  */
 export default function TaskListWrapper() {
-  const [refreshKey, setRefreshKey] = useState(0);
+  const router = useRouter();
 
   const handleStatsRefresh = useCallback(() => {
-    // Trigger refresh halaman untuk update stats (level, EXP, dll)
-    setRefreshKey((k) => k + 1);
-    // Untuk update stats real-time tanpa full reload, kita gunakan router.refresh()
-    // Tapi karena ini wrapper sederhana, reload ringan saja
-    window.location.reload();
-  }, []);
+    // Refresh hanya data Server Component tanpa reload full halaman
+    router.refresh();
+  }, [router]);
 
-  return <TaskList key={refreshKey} onStatsRefresh={handleStatsRefresh} />;
+  return <TaskList onStatsRefresh={handleStatsRefresh} />;
 }

@@ -1,5 +1,3 @@
-"use client";
-
 interface ExpBarProps {
   level: number;
   currentExp: number;

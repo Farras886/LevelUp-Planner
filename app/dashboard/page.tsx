@@ -15,41 +15,34 @@ export default async function DashboardPage() {
   const session = await auth();
   if (!session?.user?.id) redirect("/login");
 
-  // Ambil UserStats dari DB
-  const stats = await prisma.userStats.findUnique({
-    where: { user_id: session.user.id },
-  });
-
-  if (!stats) redirect("/login");
-
-  // Hitung task selesai hari ini
   const todayStart = new Date();
   todayStart.setHours(0, 0, 0, 0);
   const todayEnd = new Date();
   todayEnd.setHours(23, 59, 59, 999);
 
-  const completedToday = await prisma.task.count({
-    where: {
-      user_id: session.user.id,
-      status: "DONE",
-      completed_at: { gte: todayStart, lte: todayEnd },
-    },
-  });
+  // Jalankan semua DB queries secara paralel
+  const [stats, completedToday, todayTasks] = await Promise.all([
+    prisma.userStats.findUnique({ where: { user_id: session.user.id } }),
+    prisma.task.count({
+      where: {
+        user_id: session.user.id,
+        status: "DONE",
+        completed_at: { gte: todayStart, lte: todayEnd },
+      },
+    }),
+    prisma.task.count({
+      where: {
+        user_id: session.user.id,
+        due_date: { gte: todayStart, lte: todayEnd },
+      },
+    }),
+  ]);
 
-  // Ambil 3 task hari ini yang belum selesai
-  const todayTasks = await prisma.task.count({
-    where: {
-      user_id: session.user.id,
-      due_date: { gte: todayStart, lte: todayEnd },
-    },
-  });
+  if (!stats) redirect("/login");
 
-  const greeting = () => {
-    const hour = new Date().getHours();
-    if (hour < 12) return "Selamat pagi";
-    if (hour < 17) return "Selamat siang";
-    return "Selamat malam";
-  };
+  const hour = new Date().getHours();
+  const greeting =
+    hour < 12 ? "Selamat pagi" : hour < 17 ? "Selamat siang" : "Selamat malam";
 
   return (
     <div className="min-h-full p-8">
@@ -62,7 +55,7 @@ export default async function DashboardPage() {
           <div className="pointer-events-none absolute -bottom-10 right-20 h-40 w-40 rounded-full bg-indigo-500/15 blur-[60px]" />
 
           <div className="relative">
-            <p className="text-sm font-medium text-violet-400">{greeting()},</p>
+            <p className="text-sm font-medium text-violet-400">{greeting},</p>
             <h1 className="mt-1 text-3xl font-bold text-white">
               {session.user?.name}! 👋
             </h1>

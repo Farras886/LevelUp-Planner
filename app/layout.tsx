@@ -2,10 +2,15 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 
+// Preload dengan subset minimal dan weight yang dipakai
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
   display: "swap",
+  // Hanya weight yang benar-benar dipakai — kurangi ukuran font download
+  weight: ["400", "500", "600", "700", "800"],
+  preload: true,
+  fallback: ["system-ui", "-apple-system", "sans-serif"],
 });
 
 export const metadata: Metadata = {
